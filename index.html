@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mírame - Tienda de Ropa</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="navigation-wrapper">
+        <div class="logo-container">
+            <img src="images/logofondoblanco.jpeg" alt="Mírame Logo" class="brand-logo">
+        </div>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#">Inicio</a></li>
+                    <li class="dropdown">
+                        <a href="#collection" class="dropbtn">Colección ▾</a>
+                        <div class="dropdown-content">
+                            <a href="#collection" class="nav-filter" data-filter="vestidos">Vestidos</a>
+                            <a href="#collection" class="nav-filter" data-filter="tops">Tops y Blusas</a>
+                            <a href="#collection" class="nav-filter" data-filter="bottoms">Pantalones y Faldas</a>
+                            <a href="#collection" class="nav-filter" data-filter="abrigos">Abrigos</a>
+                            <a href="#collection" class="nav-filter" data-filter="conjuntos">Conjuntos</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <section id="hero">
+        <div class="hero-content">
+            <h1>Elegancia Natural</h1>
+            <p>Descubre tu estilo con nuestra nueva colección.</p>
+            <a href="#collection" class="btn-primary">Ver Colección</a>
+        </div>
+    </section>
+
+    <div class="main-container container">
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3>Categoría</h3>
+                <ul>
+                    <li><button class="filter-btn active" data-filter="all" data-type="category">Todo</button></li>
+                    <li><button class="filter-btn" data-filter="vestidos" data-type="category">Vestidos</button></li>
+                    <li><button class="filter-btn" data-filter="tops" data-type="category">Tops & Blusas</button></li>
+                    <li><button class="filter-btn" data-filter="bottoms" data-type="category">Pantalones & Faldas</button></li>
+                    <li><button class="filter-btn" data-filter="abrigos" data-type="category">Abrigos</button></li>
+                    <li><button class="filter-btn" data-filter="conjuntos" data-type="category">Conjuntos</button></li>
+                </ul>
+            </div>
+            <div class="filter-section">
+                <h3>Temporada (Seasons)</h3>
+                <ul>
+                    <li><button class="filter-btn active" data-filter="all" data-type="season">Todas</button></li>
+                    <li><button class="filter-btn" data-filter="spring-summer" data-type="season">Primavera / Verano</button></li>
+                    <li><button class="filter-btn" data-filter="autumn-winter" data-type="season">Otoño / Invierno</button></li>
+                    <li><button class="filter-btn" data-filter="timeless" data-type="season">Atemporal / Básicos</button></li>
+                </ul>
+            </div>
+        </aside>
+
+        <section id="collection" class="collection-area">
+            <h2>Nuestra Colección</h2>
+            <div class="product-grid" id="product-grid">
+                <!-- Los productos se llenarán dinámicamente con JS -->
+            </div>
+            
+            <div id="load-more-container" style="text-align: center; margin-top: 3rem; display: none;">
+                <button id="load-more-btn" class="btn-primary">Ver más productos</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Sección de Valores / Esencia -->
+    <section id="values" class="values-section">
+        <div class="container">
+            <div class="values-grid">
+                <div class="value-item">
+                    <div class="icon-box">✨</div>
+                    <h3>Diseño Atemporal</h3>
+                    <p>Prendas pensadas para perdurar en el tiempo, más allá de las tendencias pasajeras.</p>
+                </div>
+                <div class="value-item">
+                    <div class="icon-box">🍃</div>
+                    <h3>Materiales Nobles</h3>
+                    <p>Seleccionamos fibras naturales de alta calidad como lino, seda y algodón orgánico.</p>
+                </div>
+                <div class="value-item">
+                    <div class="icon-box">🧵</div>
+                    <h3>Confección Ética</h3>
+                    <p>Apoyamos el trabajo justo y la producción responsable en cada costura.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Lookbook / Parallax -->
+    <section id="lookbook" class="lookbook-section">
+        <div class="lookbook-content">
+            <h2>Golden Hour Collection</h2>
+            <p>La luz perfecta para tu estilo. Descubre la calidez de nuestros tonos dorados.</p>
+            <a href="#" class="btn-white">Ver Editorial</a>
+        </div>
+    </section>
+
+    <!-- Sección Newsletter -->
+    <section id="newsletter" class="newsletter-section">
+        <div class="container">
+            <h2>Únete al Club Mírame</h2>
+            <p>Recibe un 10% de descuento en tu primera compra y entérate de las novedades antes que nadie.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Tu correo electrónico" required>
+                <button type="submit" class="btn-primary">Suscribirse</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Mírame. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Modal para detalles del producto -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modal-img" src="" alt="Detalle Prenda">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modal-title">Nombre Prenda</h2>
+                    <p id="modal-price" class="price">$0.00</p>
+                    <p id="modal-desc">Descripción detallada de la prenda. Aquí va la información sobre tallas, materiales y cuidados.</p>
+                    <button class="btn-primary">Añadir al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
