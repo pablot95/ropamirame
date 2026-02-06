@@ -6,6 +6,7 @@
     <title>Detalle del Producto - Mírame</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="product-style.css"> <!-- New specific styles -->
+    <link rel="stylesheet" href="cart-icon.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -15,7 +16,16 @@
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
                     <li><a href="index.html#collection">Colección</a></li>
-                    <li><a href="cart.html">Carrito <span id="cart-count">(0)</span></a></li>
+                    <li>
+                        <a href="cart.html" class="cart-widget">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="cart-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span id="cart-count" class="cart-count-badge">0</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </header>
@@ -38,7 +48,7 @@
             <!-- Info -->
             <div class="product-info-panel">
                 <h1 id="p-title">Nombre Producto</h1>
-                <p class="p-price" id="p-price">$0.00</p>
+                
                 
                 <div class="p-description">
                     <p id="p-desc">Descripción...</p>
@@ -56,6 +66,7 @@
                         <div class="options-grid" id="color-options"></div>
                     </div>
                 </div>
+                <p class="p-price" id="p-price">$0.00</p>
 
                 <div class="actions">
                     <div class="quantity-selector">

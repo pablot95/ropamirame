@@ -1,0 +1,44 @@
+/* ... existente ... */
+
+/* Estilos para el icono del carrito flotante/integrado */
+.cart-widget {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    text-decoration: none;
+    margin-left: 15px;
+    padding: 5px;
+}
+
+.cart-widget:hover {
+    color: var(--primary-color);
+    border-bottom: none !important; /* Sobrescribir el borde del nav a */
+}
+
+.cart-icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+.cart-count-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px; /* Un poco de padding horizontal por si es >9 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #fff; /* Pequeño borde para separar del icono */
+}

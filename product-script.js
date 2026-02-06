@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
         const count = cart.reduce((acc, item) => acc + item.quantity, 0);
         const countBadge = document.getElementById('cart-count');
-        if(countBadge) countBadge.textContent = `(${count})`;
+        if(countBadge) countBadge.textContent = count;
     }
     
     updateCartCount();
