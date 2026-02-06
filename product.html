@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto - Mírame</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="product-style.css"> <!-- New specific styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="navigation-wrapper">
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="index.html#collection">Colección</a></li>
+                    <li><a href="cart.html">Carrito <span id="cart-count">(0)</span></a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <div class="container product-detail-container">
+        <div id="loading-msg">Cargando producto...</div>
+        
+        <div class="product-detail-wrapper" id="product-content" style="display: none;">
+            <!-- Gallery -->
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img id="main-img" src="" alt="Producto">
+                </div>
+                <div class="thumbnails" id="thumbnails">
+                    <!-- Js populates this -->
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="product-info-panel">
+                <h1 id="p-title">Nombre Producto</h1>
+                <p class="p-price" id="p-price">$0.00</p>
+                
+                <div class="p-description">
+                    <p id="p-desc">Descripción...</p>
+                </div>
+
+                <!-- Selectors -->
+                <div class="selectors">
+                    <div class="selector-group" id="size-selector-container">
+                        <label>Talle:</label>
+                        <div class="options-grid" id="size-options"></div>
+                    </div>
+
+                    <div class="selector-group" id="color-selector-container">
+                        <label>Color:</label>
+                        <div class="options-grid" id="color-options"></div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <div class="quantity-selector">
+                        <button id="qty-minus">-</button>
+                        <input type="number" id="qty-input" value="1" min="1" readonly>
+                        <button id="qty-plus">+</button>
+                    </div>
+                    <button class="btn-primary add-to-cart-btn" id="add-to-cart">Agregar al Carrito</button>
+                </div>
+
+                <div class="extra-actions">
+                    <a href="index.html#collection" class="continue-shopping">← Seguir Comprando</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="product-script.js"></script>
+</body>
+</html>

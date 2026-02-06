@@ -19,15 +19,16 @@
         <header>
             <nav>
                 <ul>
-                    <li><a href="#">Inicio</a></li>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="cart.html">Carrito</a></li>
                     <li class="dropdown">
                         <a href="#collection" class="dropbtn">Colección ▾</a>
                         <div class="dropdown-content">
-                            <a href="#collection" class="nav-filter" data-filter="vestidos">Vestidos</a>
-                            <a href="#collection" class="nav-filter" data-filter="tops">Tops y Blusas</a>
-                            <a href="#collection" class="nav-filter" data-filter="bottoms">Pantalones y Faldas</a>
-                            <a href="#collection" class="nav-filter" data-filter="abrigos">Abrigos</a>
-                            <a href="#collection" class="nav-filter" data-filter="conjuntos">Conjuntos</a>
+                            <a href="#collection" class="nav-filter" data-filter="remeras">Remeras</a>
+                            <a href="#collection" class="nav-filter" data-filter="sweaters">Sweaters</a>
+                            <a href="#collection" class="nav-filter" data-filter="pantalones">Pantalones</a>
+                            <a href="#collection" class="nav-filter" data-filter="shorts">Shorts</a>
+                            <a href="#collection" class="nav-filter" data-filter="camperas">Camperas</a>
                         </div>
                     </li>
                 </ul>
@@ -37,7 +38,7 @@
 
     <section id="hero">
         <div class="hero-content">
-            <h1>Elegancia Natural</h1>
+            <h1>Mirame indumentaria</h1>
             <p>Descubre tu estilo con nuestra nueva colección.</p>
             <a href="#collection" class="btn-primary">Ver Colección</a>
         </div>
@@ -48,21 +49,12 @@
             <div class="filter-section">
                 <h3>Categoría</h3>
                 <ul>
-                    <li><button class="filter-btn active" data-filter="all" data-type="category">Todo</button></li>
-                    <li><button class="filter-btn" data-filter="vestidos" data-type="category">Vestidos</button></li>
-                    <li><button class="filter-btn" data-filter="tops" data-type="category">Tops & Blusas</button></li>
-                    <li><button class="filter-btn" data-filter="bottoms" data-type="category">Pantalones & Faldas</button></li>
-                    <li><button class="filter-btn" data-filter="abrigos" data-type="category">Abrigos</button></li>
-                    <li><button class="filter-btn" data-filter="conjuntos" data-type="category">Conjuntos</button></li>
-                </ul>
-            </div>
-            <div class="filter-section">
-                <h3>Temporada (Seasons)</h3>
-                <ul>
-                    <li><button class="filter-btn active" data-filter="all" data-type="season">Todas</button></li>
-                    <li><button class="filter-btn" data-filter="spring-summer" data-type="season">Primavera / Verano</button></li>
-                    <li><button class="filter-btn" data-filter="autumn-winter" data-type="season">Otoño / Invierno</button></li>
-                    <li><button class="filter-btn" data-filter="timeless" data-type="season">Atemporal / Básicos</button></li>
+                    <li><button class="filter-btn active" data-filter="all">Todas</button></li>
+                    <li><button class="filter-btn" data-filter="remeras">Remeras</button></li>
+                    <li><button class="filter-btn" data-filter="sweaters">Sweaters</button></li>
+                    <li><button class="filter-btn" data-filter="pantalones">Pantalones</button></li>
+                    <li><button class="filter-btn" data-filter="shorts">Shorts</button></li>
+                    <li><button class="filter-btn" data-filter="camperas">Camperas</button></li>
                 </ul>
             </div>
         </aside>
@@ -145,6 +137,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
