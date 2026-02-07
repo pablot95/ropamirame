@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">${product.name}</h3>
-                    <p class="product-category">${product.category}</p>
                     <div class="product-price">$${formatPrice(product.price)}</div>
                 </div>
             `;
