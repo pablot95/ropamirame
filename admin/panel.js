@@ -37,13 +37,33 @@ const formTitle = document.getElementById('form-title');
 let selectedFiles = []; // Array files nuevos
 let existingImages = []; // Array urls existentes (modo edición)
 
+// --- Variables para Órdenes ---
+let allOrders = [];
+let currentFilter = 'all';
+
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     renderSizes();
     renderColors();
     loadProducts();
-    loadOrders();
-    setupOrderFilters();
+    
+    // Si ya está logueado, cargar órdenes inmediatamente
+    if (sessionStorage.getItem('mirame_admin_auth') === 'true') {
+        console.log('👤 Usuario ya autenticado, cargando órdenes...');
+        setTimeout(() => {
+            loadOrders();
+            setupOrderFilters();
+        }, 500);
+    }
+});
+
+// Cargar órdenes cuando el admin esté listo (después del login)
+window.addEventListener('adminReady', () => {
+    console.log('🎯 Evento adminReady recibido');
+    setTimeout(() => {
+        loadOrders();
+        setupOrderFilters();
+    }, 300);
 });
 
 // --- Renderizado de UI ---
@@ -317,7 +337,9 @@ function resetForm() {
 }
 
 // --- Migración ---
-document.getElementById('migrate-btn').addEventListener('click', async () => {
+const migrateBtn = document.getElementById('migrate-btn');
+if (migrateBtn) {
+    migrateBtn.addEventListener('click', async () => {
     const btn = document.getElementById('migrate-btn');
     const log = document.getElementById('migration-log');
     
@@ -395,16 +417,15 @@ document.getElementById('migrate-btn').addEventListener('click', async () => {
     } finally {
         btn.disabled = false;
     }
-});
+    });
+}
 
 // ========================================
 // GESTIÓN DE ÓRDENES
 // ========================================
 
-let allOrders = [];
-let currentFilter = 'all';
-
 async function loadOrders() {
+    console.log('🔄 Cargando órdenes...');
     try {
         const ordersSnapshot = await getDocs(collection(db, "orders"));
         allOrders = [];
@@ -416,25 +437,36 @@ async function loadOrders() {
             });
         });
 
+        console.log(`✅ ${allOrders.length} órdenes cargadas:`, allOrders);
+
         // Ordenar por fecha más reciente
         allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
         renderOrders();
     } catch (error) {
-        console.error("Error al cargar órdenes:", error);
+        console.error("❌ Error al cargar órdenes:", error);
     }
 }
 
 function setupOrderFilters() {
-    document.getElementById('filter-all').addEventListener('click', () => {
+    const filterAll = document.getElementById('filter-all');
+    const filterPending = document.getElementById('filter-pending');
+    const filterApproved = document.getElementById('filter-approved');
+
+    if (!filterAll || !filterPending || !filterApproved) {
+        console.log('Botones de filtro no encontrados, se configurarán después del login');
+        return;
+    }
+
+    filterAll.addEventListener('click', () => {
         setActiveFilter('all');
     });
     
-    document.getElementById('filter-pending').addEventListener('click', () => {
+    filterPending.addEventListener('click', () => {
         setActiveFilter('pending');
     });
     
-    document.getElementById('filter-approved').addEventListener('click', () => {
+    filterApproved.addEventListener('click', () => {
         setActiveFilter('approved');
     });
 }
@@ -454,11 +486,21 @@ function setActiveFilter(filter) {
 function renderOrders() {
     const ordersList = document.getElementById('orders-list');
     
+    if (!ordersList) {
+        console.error('❌ Elemento orders-list no encontrado en el DOM');
+        return;
+    }
+    
+    console.log(`📦 Renderizando ${allOrders.length} órdenes totales`);
+    console.log(`🔍 Filtro actual: ${currentFilter}`);
+    
     // Filtrar órdenes según el filtro activo
     let filteredOrders = allOrders;
     if (currentFilter !== 'all') {
         filteredOrders = allOrders.filter(order => order.status === currentFilter);
     }
+    
+    console.log(`📋 ${filteredOrders.length} órdenes después de filtrar`);
     
     if (filteredOrders.length === 0) {
         ordersList.innerHTML = '<p style="text-align: center; color: #666;">No hay órdenes para mostrar</p>';
@@ -477,13 +519,13 @@ function renderOrders() {
             
             <div class="order-customer">
                 <h4>Cliente:</h4>
-                <p><strong>${order.customer.firstName} ${order.customer.lastName}</strong></p>
-                <p>📧 ${order.customer.email}</p>
-                <p>📱 ${order.customer.phone || 'No especificado'}</p>
-                <p>📍 ${order.customer.address}, ${order.customer.city} (CP: ${order.customer.zipCode})</p>
+                <p><strong>Nombre: ${order.customer.firstName} ${order.customer.lastName}</strong></p>
+                <p>📧 Email: ${order.customer.email}</p>
+                <p>📱 Teléfono: ${order.customer.phone || 'No especificado'}</p>
+                <p>📍 Dirección de envío: ${order.customer.address}, ${order.customer.city} (CP: ${order.customer.zipCode})</p>
             </div>
-            
-            <div class="order-items">
+                
+                <div class="order-items">
                 <h4>Productos:</h4>
                 ${order.items.map(item => `
                     <div class="order-item">

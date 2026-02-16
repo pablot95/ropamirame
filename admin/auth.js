@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAdmin() {
         loginOverlay.style.display = 'none';
         adminApp.style.display = 'block';
+        
+        // Disparar evento para que panel.js cargue las órdenes
+        window.dispatchEvent(new CustomEvent('adminReady'));
     }
 
     function showLogin() {

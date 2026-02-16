@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle del Producto - Mírame</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="product-style.css"> <!-- New specific styles -->
+    <link rel="stylesheet" href="product-style.css">
     <link rel="stylesheet" href="cart-icon.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="navigation-wrapper">
+        <div class="logo-container">
+            <img src="images/logofondoblanco.jpeg" alt="Mírame Logo" class="brand-logo">
+        </div>
         <header>
             <nav>
                 <ul>
@@ -40,15 +43,13 @@
                 <div class="main-image">
                     <img id="main-img" src="" alt="Producto">
                 </div>
-                <div class="thumbnails" id="thumbnails">
-                    <!-- Js populates this -->
-                </div>
+                <div class="thumbnails" id="thumbnails"></div>
             </div>
 
             <!-- Info -->
             <div class="product-info-panel">
                 <h1 id="p-title">Nombre Producto</h1>
-                
+                <span id="stock-info" class="stock-info"></span>
                 
                 <div class="p-description">
                     <p id="p-desc">Descripción...</p>
@@ -77,12 +78,39 @@
                     <button class="btn-primary add-to-cart-btn" id="add-to-cart">Agregar al Carrito</button>
                 </div>
 
+                <div class="product-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🚚</span>
+                        <span>Envío a todo el país</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔄</span>
+                        <span>Cambios y devoluciones</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💳</span>
+                        <span>Pagá con MercadoPago</span>
+                    </div>
+                </div>
+
                 <div class="extra-actions">
                     <a href="index.html#collection" class="continue-shopping">← Seguir Comprando</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Productos Similares -->
+    <section id="similar-section" class="similar-section" style="display: none;">
+        <div class="container">
+            <h2 class="similar-title">También te puede interesar</h2>
+            <div class="similar-products-grid" id="similar-products-grid"></div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Mírame. Todos los derechos reservados.</p>
+    </footer>
 
     <script type="module" src="product-script.js"></script>
 </body>

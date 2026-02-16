@@ -10,16 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const billingCheckbox = document.getElementById('billing-same-shipping');
     const billingInfo = document.getElementById('billing-info');
     const totalEl = document.getElementById('checkout-total');
+    const subtotalEl = document.getElementById('checkout-subtotal');
 
-    // Cargar total
+    // Cargar carrito y renderizar resumen
     const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     totalEl.textContent = `$${formatPrice(total)}`;
+    if (subtotalEl) subtotalEl.textContent = `$${formatPrice(total)}`;
 
     if (cart.length === 0) {
         alert("El carrito está vacío");
         window.location.href = "index.html";
+        return;
     }
+
+    // Renderizar resumen del pedido
+    renderCheckoutSummary(cart);
 
     // Toggle Billing Info
     billingCheckbox.addEventListener('change', (e) => {
@@ -30,6 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Procesando...';
+
         const formData = new FormData(checkoutForm);
         const customerData = Object.fromEntries(formData.entries());
 
@@ -60,17 +70,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(orderData),
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+
             const preference = await response.json();
             
+            if (preference.error) {
+                throw new Error(preference.error);
+            }
+
             if (preference.id) {
                 // Guardar orden en Firebase antes de mostrar el botón
                 await saveOrderToFirebase(orderData, customerData, preference.id, total);
+                submitBtn.style.display = 'none';
                 createCheckoutButton(preference.id);
             } else {
-                alert("Error al crear la preferencia de pago");
+                throw new Error('No se recibió ID de preferencia');
             }
         } catch (error) {
-            alert("Error al crear la preferencia de pago: " + error);
+            console.error("Error completo:", error);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Confirmar Datos y Pagar';
+            
+            // Guardar orden en Firebase igualmente (sin MercadoPago)
+            await saveOrderToFirebase(orderData, customerData, 'pending-mp', total);
+            alert("La orden fue registrada. El pago con MercadoPago no pudo conectarse (requiere servidor PHP en Hostinger). Error: " + error.message);
         }
     });
 
@@ -93,6 +118,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
+    function renderCheckoutSummary(cart) {
+        const container = document.getElementById('checkout-summary-items');
+        if (!container) return;
+
+        container.innerHTML = cart.map(item => `
+            <div class="summary-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="summary-item-info">
+                    <h4>${item.name}</h4>
+                    <span class="item-meta">
+                        ${item.size !== 'N/A' ? 'Talle: ' + item.size : ''}
+                        ${item.color !== 'N/A' ? ' | Color: ' + item.color : ''}
+                        | Cant: ${item.quantity}
+                    </span>
+                </div>
+                <span class="summary-item-price">$${formatPrice(item.price * item.quantity)}</span>
+            </div>
+        `).join('');
+    }
+
     async function saveOrderToFirebase(orderData, customerData, preferenceId, total) {
         try {
             const orderDoc = {
@@ -108,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 items: orderData.items,
                 total: total,
-                status: 'pending', // pending, approved, rejected
+                status: 'pending',
                 createdAt: new Date().toISOString(),
             };
 
@@ -118,4 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al guardar orden:", error);
         }
     }
+
+    // Actualizar badge del carrito
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
+        const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+        const badge = document.getElementById('cart-count');
+        if (badge) badge.textContent = count;
+    }
+    updateCartCount();
 });

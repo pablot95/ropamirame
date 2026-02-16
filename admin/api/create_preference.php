@@ -29,9 +29,9 @@ $preferenceData = [
         // Agregar otros campos si es necesario
     ],
     "back_urls" => [
-        "success" => "http://" . $_SERVER['HTTP_HOST'] . "/index.html", // Ajustar url
-        "failure" => "http://" . $_SERVER['HTTP_HOST'] . "/index.html",
-        "pending" => "http://" . $_SERVER['HTTP_HOST'] . "/index.html"
+        "success" => "https://mirameindumentaria.com/index.html",
+        "failure" => "https://mirameindumentaria.com/index.html",
+        "pending" => "https://mirameindumentaria.com/index.html"
     ],
     "auto_return" => "approved",
 ];
