@@ -6,11 +6,32 @@
     <title>Panel Administrativo - Mirame</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../admin/panel.css">
+    <link rel="stylesheet" href="../admin/login.css">
 </head>
 <body>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Acceso Administrativo</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="login-btn">Ingresar</button>
+                <p id="login-error" style="color: red; display: none;">Credenciales incorrectas</p>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-app" style="display: none;">
     <header>
         <h1>Panel de Administración</h1>
         <nav>
+            <a href="#" id="logout-btn">Cerrar Sesión</a>
             <a href="../index.html">Ir a la tienda</a>
         </nav>
     </header>
@@ -107,8 +128,31 @@
                 <!-- Los productos se cargarán aquí -->
             </div>
         </section>
+
+        <!-- Sección de Órdenes -->
+        <section class="admin-section">
+            <h2>Órdenes de Compra</h2>
+            <div class="orders-filters" style="margin-bottom: 1rem;">
+                <button id="filter-all" class="filter-btn active">Todas</button>
+                <button id="filter-pending" class="filter-btn">Pendientes</button>
+                <button id="filter-approved" class="filter-btn">Aprobadas</button>
+            </div>
+            <div id="orders-list" class="orders-container">
+                <!-- Las órdenes se cargarán aquí -->
+            </div>
+        </section>
+
+        <!-- Herramientas Avanzadas -->
+        <section class="admin-section" style="margin-top: 2rem; border-top: 2px solid #ddd; padding-top: 1rem;">
+            <h2>Mantenimiento</h2>
+            <p>Utiliza esta herramienta para mover las imágenes que están en Firebase hacia tu nuevo servidor (Hostinger). Esto permitirá cerrar el almacenamiento de Firebase.</p>
+            <button id="migrate-btn" style="background-color: #ff9800; color: white;">Migrar Imágenes a Hostinger</button>
+            <div id="migration-log" style="margin-top: 10px; font-size: 0.9em; max-height: 150px; overflow-y: auto; background: #fff; padding: 10px; border: 1px solid #ccc;"></div>
+        </section>
     </div>
 
+    </div> <!-- Close admin-app -->
+    <script type="module" src="auth.js"></script>
     <script type="module" src="../admin/panel.js"></script>
 </body>
 </html>

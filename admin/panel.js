@@ -1,4 +1,4 @@
-import { db, storage, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, getDoc, ref, uploadBytes, getDownloadURL, deleteObject } from "../firebase-config.js";
+import { db, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, getDoc } from "../firebase-config.js";
 
 // --- Configuración y Datos Estáticos ---
 const sizesConfig = {
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSizes();
     renderColors();
     loadProducts();
+    loadOrders();
+    setupOrderFilters();
 });
 
 // --- Renderizado de UI ---
@@ -145,11 +147,30 @@ productForm.addEventListener('submit', async (e) => {
         const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
         const colors = Array.from(document.querySelectorAll('input[name="colors"]:checked')).map(cb => cb.value);
 
-        // Subir nuevas imágenes
+        // Subir nuevas imágenes al servidor (Hostinger/PHP)
         const newImageUrls = await Promise.all(selectedFiles.map(async (file) => {
-            const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            return await getDownloadURL(snapshot.ref);
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const response = await fetch('api/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                return data.url;
+            } catch (err) {
+                console.error("Error subiendo imagen:", err);
+                throw new Error("Error al subir imagen: " + file.name);
+            }
         }));
 
         const finalImages = [...existingImages, ...newImageUrls];
@@ -293,4 +314,274 @@ function resetForm() {
     submitBtn.textContent = 'Guardar Producto';
     cancelBtn.style.display = 'none';
     formTitle.textContent = 'Agregar Nuevo Producto';
+}
+
+// --- Migración ---
+document.getElementById('migrate-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('migrate-btn');
+    const log = document.getElementById('migration-log');
+    
+    if(!confirm("¿Estás seguro de iniciar la migración? Esto descargará las imágenes de Firebase y las subirá a tu servidor Hostinger.")) return;
+
+    btn.disabled = true;
+    log.innerHTML = "Iniciando migración...<br>";
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        let total = querySnapshot.size;
+        let processed = 0;
+
+        for (const docSnap of querySnapshot.docs) {
+            const product = docSnap.data();
+            const productId = docSnap.id;
+            let needsUpdate = false;
+            let newImages = [];
+            
+            log.innerHTML += `Procesando: ${product.name}... <br>`;
+
+            if (product.images && product.images.length > 0) {
+                for (const imgUrl of product.images) {
+                    // Si la URL es de Firebase Storage, la migramos
+                    if (imgUrl.includes('firebasestorage.googleapis.com')) {
+                        try {
+                            log.innerHTML += ` -> Enviando URL al servidor para migración...<br>`;
+                            
+                            // 2. Preparar subida (enviamos URL, no blob)
+                            const formData = new FormData();
+                            formData.append('imageUrl', imgUrl);
+
+                            // 3. Subir a Hostinger
+                            const uploadRes = await fetch('api/upload.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const uploadData = await uploadRes.json();
+                            if(uploadData.error) throw new Error(uploadData.error);
+                            
+                            log.innerHTML += ` -> Subida a Hostinger OK: ${uploadData.url}<br>`;
+                            newImages.push(uploadData.url);
+                            needsUpdate = true;
+
+                        } catch (err) {
+                            console.error("Error migrando imagen:", err);
+                            log.innerHTML += `<span style="color:red"> -> Error: ${err.message}</span><br>`;
+                            // Mantenemos la original si falla
+                            newImages.push(imgUrl);
+                        }
+                    } else {
+                        // Ya está migrada o es externa
+                        newImages.push(imgUrl);
+                    }
+                }
+            }
+
+            if (needsUpdate) {
+                await updateDoc(doc(db, "products", productId), { images: newImages });
+                log.innerHTML += `<span style="color:green"> -> ¡Producto actualizado en base de datos!</span><br>`;
+            } else {
+                log.innerHTML += ` -> No requiere cambios.<br>`;
+            }
+            
+            processed++;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        log.innerHTML += "<strong>--- Migración completada ---</strong>";
+
+    } catch (error) {
+        console.error("Error general de migración:", error);
+        log.innerHTML += `<span style="color:red">Error crítico: ${error.message}</span>`;
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+// ========================================
+// GESTIÓN DE ÓRDENES
+// ========================================
+
+let allOrders = [];
+let currentFilter = 'all';
+
+async function loadOrders() {
+    try {
+        const ordersSnapshot = await getDocs(collection(db, "orders"));
+        allOrders = [];
+        
+        ordersSnapshot.forEach((doc) => {
+            allOrders.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Ordenar por fecha más reciente
+        allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        renderOrders();
+    } catch (error) {
+        console.error("Error al cargar órdenes:", error);
+    }
+}
+
+function setupOrderFilters() {
+    document.getElementById('filter-all').addEventListener('click', () => {
+        setActiveFilter('all');
+    });
+    
+    document.getElementById('filter-pending').addEventListener('click', () => {
+        setActiveFilter('pending');
+    });
+    
+    document.getElementById('filter-approved').addEventListener('click', () => {
+        setActiveFilter('approved');
+    });
+}
+
+function setActiveFilter(filter) {
+    currentFilter = filter;
+    
+    // Actualizar botones activos
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`filter-${filter}`).classList.add('active');
+    
+    renderOrders();
+}
+
+function renderOrders() {
+    const ordersList = document.getElementById('orders-list');
+    
+    // Filtrar órdenes según el filtro activo
+    let filteredOrders = allOrders;
+    if (currentFilter !== 'all') {
+        filteredOrders = allOrders.filter(order => order.status === currentFilter);
+    }
+    
+    if (filteredOrders.length === 0) {
+        ordersList.innerHTML = '<p style="text-align: center; color: #666;">No hay órdenes para mostrar</p>';
+        return;
+    }
+    
+    ordersList.innerHTML = filteredOrders.map(order => `
+        <div class="order-card" data-order-id="${order.id}">
+            <div class="order-header">
+                <div>
+                    <strong>Orden #${order.id.substring(0, 8)}</strong>
+                    <span class="order-status order-status-${order.status}">${getStatusText(order.status)}</span>
+                </div>
+                <span class="order-date">${formatDate(order.createdAt)}</span>
+            </div>
+            
+            <div class="order-customer">
+                <h4>Cliente:</h4>
+                <p><strong>${order.customer.firstName} ${order.customer.lastName}</strong></p>
+                <p>📧 ${order.customer.email}</p>
+                <p>📱 ${order.customer.phone || 'No especificado'}</p>
+                <p>📍 ${order.customer.address}, ${order.customer.city} (CP: ${order.customer.zipCode})</p>
+            </div>
+            
+            <div class="order-items">
+                <h4>Productos:</h4>
+                ${order.items.map(item => `
+                    <div class="order-item">
+                        <span>${item.title} x${item.quantity}</span>
+                        <span>$${formatPrice(item.unit_price * item.quantity)}</span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="order-total">
+                <strong>Total: $${formatPrice(order.total)}</strong>
+            </div>
+            
+            <div class="order-actions">
+                <select class="order-status-select" data-order-id="${order.id}">
+                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pendiente</option>
+                    <option value="approved" ${order.status === 'approved' ? 'selected' : ''}>Aprobada</option>
+                    <option value="rejected" ${order.status === 'rejected' ? 'selected' : ''}>Rechazada</option>
+                    <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completada</option>
+                </select>
+                <button class="btn-delete-order" data-order-id="${order.id}">Eliminar</button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Event listeners para cambios de estado
+    document.querySelectorAll('.order-status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+            const orderId = e.target.dataset.orderId;
+            const newStatus = e.target.value;
+            await updateOrderStatus(orderId, newStatus);
+        });
+    });
+    
+    // Event listeners para eliminar órdenes
+    document.querySelectorAll('.btn-delete-order').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const orderId = e.target.dataset.orderId;
+            if (confirm('¿Estás seguro de eliminar esta orden?')) {
+                await deleteOrder(orderId);
+            }
+        });
+    });
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        await updateDoc(doc(db, "orders", orderId), {
+            status: newStatus
+        });
+        
+        // Actualizar en el array local
+        const order = allOrders.find(o => o.id === orderId);
+        if (order) {
+            order.status = newStatus;
+        }
+        
+        renderOrders();
+        alert('Estado actualizado correctamente');
+    } catch (error) {
+        console.error("Error al actualizar estado:", error);
+        alert('Error al actualizar el estado');
+    }
+}
+
+async function deleteOrder(orderId) {
+    try {
+        await deleteDoc(doc(db, "orders", orderId));
+        allOrders = allOrders.filter(o => o.id !== orderId);
+        renderOrders();
+        alert('Orden eliminada correctamente');
+    } catch (error) {
+        console.error("Error al eliminar orden:", error);
+        alert('Error al eliminar la orden');
+    }
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        pending: 'Pendiente',
+        approved: 'Aprobada',
+        rejected: 'Rechazada',
+        completed: 'Completada'
+    };
+    return statusMap[status] || status;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatPrice(price) {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }

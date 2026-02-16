@@ -1,7 +1,8 @@
+import { db, collection, addDoc } from "./firebase-config.js";
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuración MercadoPago ---
-    // Reemplaza YOUR_PUBLIC_KEY con la clave pública de tu cuenta de Mercado Pago
-    const mp = new MercadoPago('YOUR_PUBLIC_KEY', {
+    const mp = new MercadoPago('APP_USR-0105d511-0e85-4b9f-b131-ae47ad7210a6', {
         locale: 'es-AR'
     });
 
@@ -35,29 +36,42 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Datos del cliente:", customerData);
         console.log("Items:", cart);
 
-        // Aquí deberías llamar a tu backend (o Firebase Cloud Function) para crear
-        // la preferencia de MercadoPago.
-        // Ejemplo de lo que se enviaría:
-        /*
+        // Preparar datos para el backend
         const orderData = {
             items: cart.map(item => ({
                 title: item.name,
-                unit_price: item.price,
-                quantity: item.quantity,
+                unit_price: Number(item.price),
+                quantity: Number(item.quantity),
+                currency_id: "ARS"
             })),
             payer: {
-                name: customerData.firstName,
-                surname: customerData.lastName,
-                email: customerData.email,
-                // ...
+                name: customerData.firstName || "Test",
+                surname: customerData.lastName || "User",
+                email: customerData.email || "test_user_123456@testuser.com"
             }
         };
-        */
 
-        alert("Integración lista. Aquí se debe generar el ID de preferencia de MercadoPago.");
+        try {
+            const response = await fetch("admin/api/create_preference.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            });
 
-        // Simulación: Una vez obtenido el preferenceId del backend:
-        // createCheckoutButton("YOUR_PREFERENCE_ID");
+            const preference = await response.json();
+            
+            if (preference.id) {
+                // Guardar orden en Firebase antes de mostrar el botón
+                await saveOrderToFirebase(orderData, customerData, preference.id, total);
+                createCheckoutButton(preference.id);
+            } else {
+                alert("Error al crear la preferencia de pago");
+            }
+        } catch (error) {
+            alert("Error al crear la preferencia de pago: " + error);
+        }
     });
 
     function createCheckoutButton(preferenceId) {
@@ -77,5 +91,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatPrice(price) {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    async function saveOrderToFirebase(orderData, customerData, preferenceId, total) {
+        try {
+            const orderDoc = {
+                preferenceId: preferenceId,
+                customer: {
+                    firstName: customerData.firstName,
+                    lastName: customerData.lastName,
+                    email: customerData.email,
+                    phone: customerData.phone,
+                    address: customerData.address,
+                    city: customerData.city,
+                    zipCode: customerData.zipCode,
+                },
+                items: orderData.items,
+                total: total,
+                status: 'pending', // pending, approved, rejected
+                createdAt: new Date().toISOString(),
+            };
+
+            await addDoc(collection(db, "orders"), orderDoc);
+            console.log("Orden guardada en Firebase");
+        } catch (error) {
+            console.error("Error al guardar orden:", error);
+        }
     }
 });

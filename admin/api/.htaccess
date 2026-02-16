@@ -1,0 +1,5 @@
+# Servidor Apache
+<Files "mp_config.php">
+    Order allow,deny
+    Deny from all
+</Files>

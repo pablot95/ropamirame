@@ -1,0 +1,13 @@
+# Archivos de configuración con credenciales sensibles
+admin/api/mp_config.php
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+
+# Node modules (si usas en el futuro)
+node_modules/
