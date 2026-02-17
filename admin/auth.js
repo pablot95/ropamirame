@@ -5,14 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('login-error');
     const logoutBtn = document.getElementById('logout-btn');
 
-    // Check Login Status on Load
     if (sessionStorage.getItem('mirame_admin_auth') === 'true') {
         showAdmin();
     } else {
         showLogin();
     }
 
-    // Login Action
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const user = document.getElementById('username').value;
@@ -28,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Logout Action
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
         sessionStorage.removeItem('mirame_admin_auth');
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginOverlay.style.display = 'none';
         adminApp.style.display = 'block';
         
-        // Disparar evento para que panel.js cargue las órdenes
         window.dispatchEvent(new CustomEvent('adminReady'));
     }
 

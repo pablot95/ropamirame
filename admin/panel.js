@@ -1,10 +1,9 @@
 import { db, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, getDoc } from "../firebase-config.js";
 
-// --- Configuración y Datos Estáticos ---
 const sizesConfig = {
     letters: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     numbers: ['1', '2', '3', '4', '5', '6', '7'],
-    large: [] // Generated dynamically below 36-54
+    large: []
 };
 
 for (let i = 36; i <= 54; i += 2) {
@@ -26,7 +25,6 @@ const colorsConfig = [
     { name: 'verde beneton', hex: '#009e60' }
 ];
 
-// --- Elementos del DOM ---
 const productForm = document.getElementById('product-form');
 const productsList = document.getElementById('products-list');
 const imagePreviewContainer = document.getElementById('image-preview-container');
@@ -34,20 +32,17 @@ const submitBtn = document.getElementById('submit-btn');
 const cancelBtn = document.getElementById('cancel-btn');
 const formTitle = document.getElementById('form-title');
 
-let selectedFiles = []; // Array files nuevos
-let existingImages = []; // Array urls existentes (modo edición)
+let selectedFiles = [];
+let existingImages = [];
 
-// --- Variables para Órdenes ---
 let allOrders = [];
 let currentFilter = 'all';
 
-// --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     renderSizes();
     renderColors();
     loadProducts();
     
-    // Si ya está logueado, cargar órdenes inmediatamente
     if (sessionStorage.getItem('mirame_admin_auth') === 'true') {
         console.log('👤 Usuario ya autenticado, cargando órdenes...');
         setTimeout(() => {
@@ -57,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Cargar órdenes cuando el admin esté listo (después del login)
 window.addEventListener('adminReady', () => {
     console.log('🎯 Evento adminReady recibido');
     setTimeout(() => {
@@ -66,7 +60,6 @@ window.addEventListener('adminReady', () => {
     }, 300);
 });
 
-// --- Renderizado de UI ---
 function renderSizes() {
     const lettersContainer = document.getElementById('sizes-letters');
     const numbersContainer = document.getElementById('sizes-numbers');
@@ -95,20 +88,16 @@ function renderColors() {
     `).join('');
 }
 
-// --- Manejo de Imágenes ---
 document.getElementById('images').addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     selectedFiles = selectedFiles.concat(files);
     renderImagePreviews();
-    // Limpiamos el input para permitir seleccionar la misma imagen nuevamente si fuera necesario
-    // y manejamos nuestro propio array de archivos
-    e.target.value = ''; 
+    e.target.value = '';
 });
 
 function renderImagePreviews() {
     imagePreviewContainer.innerHTML = '';
 
-    // Renderizar imágenes existentes (Edición)
     existingImages.forEach((url, index) => {
         const div = document.createElement('div');
         div.className = 'preview-item';
@@ -119,7 +108,6 @@ function renderImagePreviews() {
         imagePreviewContainer.appendChild(div);
     });
 
-    // Renderizar nuevas imágenes seleccionadas
     selectedFiles.forEach((file, index) => {
         const div = document.createElement('div');
         div.className = 'preview-item';
@@ -145,9 +133,6 @@ window.removeExistingImage = (index) => {
     renderImagePreviews();
 };
 
-// --- CRUD ---
-
-// 1. Crear / Editar
 productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
@@ -157,7 +142,6 @@ productForm.addEventListener('submit', async (e) => {
         const productId = document.getElementById('product-id').value;
         const isEdit = !!productId;
 
-        // Recolectar datos
         const name = document.getElementById('name').value;
         const category = document.getElementById('category').value;
         const description = document.getElementById('description').value;
@@ -167,7 +151,6 @@ productForm.addEventListener('submit', async (e) => {
         const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
         const colors = Array.from(document.querySelectorAll('input[name="colors"]:checked')).map(cb => cb.value);
 
-        // Subir nuevas imágenes al servidor (Hostinger/PHP)
         const newImageUrls = await Promise.all(selectedFiles.map(async (file) => {
             const formData = new FormData();
             formData.append('image', file);
@@ -215,7 +198,7 @@ productForm.addEventListener('submit', async (e) => {
             productData.createdAt = new Date();
             await addDoc(collection(db, "products"), productData);
             alert('Producto creado correctamente');
-            resetForm(); // Resetear solo al crear, al editar se resetea por el botón cancelar
+            resetForm();
         }
 
         loadProducts();
@@ -229,7 +212,6 @@ productForm.addEventListener('submit', async (e) => {
     }
 });
 
-// 2. Leer
 async function loadProducts() {
     productsList.innerHTML = '<p>Cargando productos...</p>';
     try {
@@ -260,13 +242,10 @@ async function loadProducts() {
     }
 }
 
-// 3. Eliminar
 window.deleteProduct = async (id) => {
     if(!confirm('¿Estás seguro de eliminar este producto?')) return;
 
     try {
-        // Opcional: Eliminar imágenes de Storage (requeriría lógica extra para rastrear refs)
-        // Por simplicidad en MVP, solo eliminamos el documento
         await deleteDoc(doc(db, "products", id));
         loadProducts();
     } catch (error) {
@@ -275,14 +254,12 @@ window.deleteProduct = async (id) => {
     }
 };
 
-// 4. Preparar Edición
 window.editProduct = async (id) => {
     try {
         const docSnap = await getDoc(doc(db, "products", id));
         if (docSnap.exists()) {
             const data = docSnap.data();
             
-            // Llenar campos
             document.getElementById('product-id').value = id;
             document.getElementById('name').value = data.name;
             document.getElementById('category').value = data.category;
@@ -290,27 +267,22 @@ window.editProduct = async (id) => {
             document.getElementById('price').value = data.price;
             document.getElementById('stock').value = data.stock;
 
-            // Checkboxes Talles
             document.querySelectorAll('input[name="sizes"]').forEach(cb => {
                 cb.checked = data.sizes.includes(cb.value);
             });
 
-            // Checkboxes Colores
             document.querySelectorAll('input[name="colors"]').forEach(cb => {
                 cb.checked = data.colors.includes(cb.value);
             });
 
-            // Imágenes con manejo de estado
             existingImages = data.images || [];
-            selectedFiles = []; // Limpiar nuevos archivos
+            selectedFiles = [];
             renderImagePreviews();
 
-            // Cambiar UI a modo edición
             submitBtn.textContent = 'Actualizar Producto';
             cancelBtn.style.display = 'inline-block';
             formTitle.textContent = 'Editar Producto';
 
-            // Scroll al form
             document.querySelector('.admin-section').scrollIntoView({ behavior: 'smooth' });
 
         } else {
@@ -321,7 +293,6 @@ window.editProduct = async (id) => {
     }
 };
 
-// Cancelar Edición
 cancelBtn.addEventListener('click', resetForm);
 
 function resetForm() {
@@ -336,7 +307,6 @@ function resetForm() {
     formTitle.textContent = 'Agregar Nuevo Producto';
 }
 
-// --- Migración ---
 const migrateBtn = document.getElementById('migrate-btn');
 if (migrateBtn) {
     migrateBtn.addEventListener('click', async () => {
@@ -363,16 +333,13 @@ if (migrateBtn) {
 
             if (product.images && product.images.length > 0) {
                 for (const imgUrl of product.images) {
-                    // Si la URL es de Firebase Storage, la migramos
                     if (imgUrl.includes('firebasestorage.googleapis.com')) {
                         try {
                             log.innerHTML += ` -> Enviando URL al servidor para migración...<br>`;
                             
-                            // 2. Preparar subida (enviamos URL, no blob)
                             const formData = new FormData();
                             formData.append('imageUrl', imgUrl);
 
-                            // 3. Subir a Hostinger
                             const uploadRes = await fetch('api/upload.php', {
                                 method: 'POST',
                                 body: formData
@@ -388,11 +355,9 @@ if (migrateBtn) {
                         } catch (err) {
                             console.error("Error migrando imagen:", err);
                             log.innerHTML += `<span style="color:red"> -> Error: ${err.message}</span><br>`;
-                            // Mantenemos la original si falla
                             newImages.push(imgUrl);
                         }
                     } else {
-                        // Ya está migrada o es externa
                         newImages.push(imgUrl);
                     }
                 }
@@ -420,10 +385,6 @@ if (migrateBtn) {
     });
 }
 
-// ========================================
-// GESTIÓN DE ÓRDENES
-// ========================================
-
 async function loadOrders() {
     console.log('🔄 Cargando órdenes...');
     try {
@@ -439,7 +400,6 @@ async function loadOrders() {
 
         console.log(`✅ ${allOrders.length} órdenes cargadas:`, allOrders);
 
-        // Ordenar por fecha más reciente
         allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
         renderOrders();
@@ -474,7 +434,6 @@ function setupOrderFilters() {
 function setActiveFilter(filter) {
     currentFilter = filter;
     
-    // Actualizar botones activos
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -494,7 +453,6 @@ function renderOrders() {
     console.log(`📦 Renderizando ${allOrders.length} órdenes totales`);
     console.log(`🔍 Filtro actual: ${currentFilter}`);
     
-    // Filtrar órdenes según el filtro activo
     let filteredOrders = allOrders;
     if (currentFilter !== 'all') {
         filteredOrders = allOrders.filter(order => order.status === currentFilter);
@@ -523,13 +481,19 @@ function renderOrders() {
                 <p>📧 Email: ${order.customer.email}</p>
                 <p>📱 Teléfono: ${order.customer.phone || 'No especificado'}</p>
                 <p>📍 Dirección de envío: ${order.customer.address}, ${order.customer.city} (CP: ${order.customer.zipCode})</p>
+                ${order.customer.billingAddress && order.customer.billingAddress !== order.customer.address ? 
+                    `<p>💳 Dirección de facturación: ${order.customer.billingAddress}</p>` : ''}
             </div>
                 
                 <div class="order-items">
                 <h4>Productos:</h4>
                 ${order.items.map(item => `
                     <div class="order-item">
-                        <span>${item.title} x${item.quantity}</span>
+                        <span>
+                            ${item.title} x${item.quantity}
+                            ${item.size ? `<br><small style="color: #666;">Talle: ${item.size}</small>` : ''}
+                            ${item.color ? `<small style="color: #666;"> | Color: ${item.color}</small>` : ''}
+                        </span>
                         <span>$${formatPrice(item.unit_price * item.quantity)}</span>
                     </div>
                 `).join('')}
@@ -551,7 +515,6 @@ function renderOrders() {
         </div>
     `).join('');
     
-    // Event listeners para cambios de estado
     document.querySelectorAll('.order-status-select').forEach(select => {
         select.addEventListener('change', async (e) => {
             const orderId = e.target.dataset.orderId;
@@ -560,7 +523,6 @@ function renderOrders() {
         });
     });
     
-    // Event listeners para eliminar órdenes
     document.querySelectorAll('.btn-delete-order').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const orderId = e.target.dataset.orderId;
@@ -577,7 +539,6 @@ async function updateOrderStatus(orderId, newStatus) {
             status: newStatus
         });
         
-        // Actualizar en el array local
         const order = allOrders.find(o => o.id === orderId);
         if (order) {
             order.status = newStatus;

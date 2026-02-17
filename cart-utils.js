@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    /* ... (código existente) ... */
-    
-    // Al final del DOMContentLoaded o en una función separada común
     updateCartCount();
 });
 

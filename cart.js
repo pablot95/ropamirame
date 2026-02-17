@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsContainer.appendChild(div);
         });
 
-        // Event listeners for remove buttons
         document.querySelectorAll('.remove-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);

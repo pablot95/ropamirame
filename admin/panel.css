@@ -30,7 +30,6 @@ header nav a {
     gap: 2rem;
 }
 
-/* Hacer que la sección de órdenes ocupe todo el ancho */
 .admin-section:has(#orders-list) {
     grid-column: 1 / -1;
 }
@@ -69,7 +68,6 @@ textarea {
     box-sizing: border-box;
 }
 
-/* Talles (Sizes) */
 .sizes-container {
     display: flex;
     flex-direction: column;
@@ -110,7 +108,6 @@ textarea {
     border-color: #333;
 }
 
-/* Colores (Colors) */
 .colors-container {
     display: flex;
     flex-wrap: wrap;
@@ -147,7 +144,6 @@ textarea {
     display: block;
 }
 
-/* Image Preview */
 .image-preview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -197,7 +193,6 @@ textarea {
     transform: scale(1.1);
 }
 
-/* Product List */
 .admin-products-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -263,10 +258,6 @@ button[type="submit"] {
     width: 100%;
     margin-top: 0.5rem;
 }
-
-/* ===========================
-   ESTILOS PARA ÓRDENES
-   =========================== */
 
 .orders-filters {
     display: flex;

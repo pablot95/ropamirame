@@ -15,7 +15,6 @@ if (!file_exists($uploadDir)) {
 
 $fileName = '';
 
-// --- CASO 1: Subida de archivo (Formulario normal) ---
 if (isset($_FILES['image'])) {
     $file = $_FILES['image'];
     $fileName = uniqid() . '_' . time() . '_' . basename($file['name']);
@@ -35,18 +34,15 @@ if (isset($_FILES['image'])) {
         exit;
     }
 } 
-// --- CASO 2: Descarga desde URL (Migración) ---
 elseif (isset($_POST['imageUrl'])) {
     $url = $_POST['imageUrl'];
     
-    // Validación básica de URL
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid URL']);
         exit;
     }
 
-    // Configurar contexto de stream para manejar HTTPS y posibles restricciones básicas
     $options = [
         "http" => [
             "method" => "GET",
@@ -63,14 +59,11 @@ elseif (isset($_POST['imageUrl'])) {
         exit;
     }
 
-    // Intentar detectar extensión desde la URL
     $pathInfo = pathinfo(parse_url($url, PHP_URL_PATH));
     $ext = isset($pathInfo['extension']) ? $pathInfo['extension'] : 'jpg';
-    // Limpiar extensión
     $ext = preg_replace('/[^a-zA-Z0-9]/', '', $ext);
     if(empty($ext)) $ext = 'jpg';
 
-    // Generar nombre
     $fileName = uniqid() . '_migrated.' . $ext;
     $targetPath = $uploadDir . $fileName;
     
@@ -86,14 +79,11 @@ elseif (isset($_POST['imageUrl'])) {
     exit;
 }
 
-// --- RESPUESTA COMÚN ---
-// Construir URL pública
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'];
 
-// Obtener la raiz del proyecto
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['PHP_SELF']));
-$baseDir = dirname(dirname($scriptDir)); // Subir 2 niveles
+$baseDir = dirname(dirname($scriptDir));
 
 $path = $baseDir . '/uploads/' . $fileName;
 $path = str_replace('//', '/', $path);

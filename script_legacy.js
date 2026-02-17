@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Base de Datos de Productos con Categorías y Seasons
     const products = [
         { 
             id: 1, 
@@ -113,16 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadMoreBtn = document.getElementById('load-more-btn');
     const loadMoreContainer = document.getElementById('load-more-container');
 
-    // Estado del filtro y paginación
     let activeCategory = 'all';
     let activeSeason = 'all';
-    let currentFilteredProducts = []; // Para guardar la lista filtrada actual
+    let currentFilteredProducts = [];
     let itemsToShow = 6;
     const ITEMS_PER_PAGE = 6;
 
-    // Función principal de renderizado (ahora recibe la lista lista para mostrar)
     function renderGrid(productsList) {
-        productGrid.innerHTML = ''; // Limpiar grid
+        productGrid.innerHTML = '';
 
         if (productsList.length === 0) {
             productGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No se encontraron productos con estos filtros.</p>';
@@ -155,12 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Control de paginación y visualización
     function updateProductView() {
         const visibleHelper = currentFilteredProducts.slice(0, itemsToShow);
         renderGrid(visibleHelper);
 
-        // Mostrar u ocultar botón "Ver más"
         if (itemsToShow >= currentFilteredProducts.length) {
             loadMoreContainer.style.display = 'none';
         } else {
@@ -168,17 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Inicializar
-    currentFilteredProducts = products; // Al inicio son todos
+    currentFilteredProducts = products;
     updateProductView();
 
-    // Evento botón Ver Más
     loadMoreBtn.addEventListener('click', () => {
         itemsToShow += ITEMS_PER_PAGE;
         updateProductView();
     });
 
-    // Lógica de Filtrado (Sidebar)
     const filterButtons = document.querySelectorAll('.filter-btn');
 
     function setActiveFilterBtn(type, value) {
@@ -196,32 +188,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const filterType = btn.getAttribute('data-type');
             const filterValue = btn.getAttribute('data-filter');
 
-            // Actualizar variables de estado
             if (filterType === 'category') {
                 activeCategory = filterValue;
             } else if (filterType === 'season') {
                 activeSeason = filterValue;
             }
 
-            // Actualizar UI Sidebar
             setActiveFilterBtn(filterType, filterValue);
 
             applyFilters();
         });
     });
 
-    // Lógica de Filtrado (Nav Dropdown)
     const navFilters = document.querySelectorAll('.nav-filter');
     navFilters.forEach(link => {
         link.addEventListener('click', (e) => {
-            // No prevenimos default para que haga scroll al anchor (#collection)
             const filterValue = link.getAttribute('data-filter');
             
-            // Actualizar estado (al venir del menú, asumimos solo cambio de categoría)
             activeCategory = filterValue;
-            // Opcional: ¿Reseteamos season? Dejémoslo como está por ahora para permitir combinaciones si el usuario ya filtró season.
             
-            // Sincronizar Sidebar
             setActiveFilterBtn('category', filterValue);
 
             applyFilters();
@@ -229,36 +214,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function applyFilters() {
-        // 1. Filtrar la lista completa
         currentFilteredProducts = products.filter(product => {
             const matchCategory = activeCategory === 'all' || product.category === activeCategory;
             const matchSeason = activeSeason === 'all' || product.season === activeSeason;
             return matchCategory && matchSeason;
         });
 
-        // 2. Resetear contador de paginación
         itemsToShow = ITEMS_PER_PAGE;
 
-        // 3. Actualizar vista
         updateProductView();
     }
 
-    // Función para abrir modal
     function openModal(product) {
-        modal.style.display = "flex"; // Usamos flex para centrar
+        modal.style.display = "flex";
         modalImg.src = product.image;
         modalTitle.textContent = product.name;
         modalPrice.textContent = `$${product.price.toFixed(2)}`;
         modalDesc.textContent = product.description;
-        document.body.style.overflow = "hidden"; // Evitar scroll de fondo
+        document.body.style.overflow = "hidden";
     }
 
-    // Cerrar modal con botón X
     closeBtn.addEventListener('click', () => {
         closeModal();
     });
 
-    // Cerrar modal clicando fuera del contenido
     window.addEventListener('click', (e) => {
         if (e.target == modal) {
             closeModal();
@@ -267,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeModal() {
         modal.style.display = "none";
-        document.body.style.overflow = "auto"; // Restaurar scroll
+        document.body.style.overflow = "auto";
     }
 
 });

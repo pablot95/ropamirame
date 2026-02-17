@@ -64,7 +64,6 @@
             border-color: #d4af37;
             outline: none;
         }
-        /* ORDER SUMMARY SIDEBAR */
         .order-summary-panel {
             background: #f9f7f2;
             padding: 2rem;
@@ -172,7 +171,6 @@
     </div>
 
     <div class="checkout-page">
-        <!-- LEFT: Form -->
         <div class="form-section">
             <h2>Detalles de Envío</h2>
             <form id="checkout-form">
@@ -213,9 +211,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label style="text-transform: none; letter-spacing: 0; font-size: 0.9rem;">
-                        <input type="checkbox" id="billing-same-shipping" checked>
-                        La dirección de facturación es la misma que la de envío
+                    <label style="display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font-size: 0.9rem;">
+                        <input type="checkbox" id="billing-same-shipping" checked style="margin: 0;">
+                        <span>La dirección de facturación es la misma que la de envío</span>
                     </label>
                 </div>
 
@@ -230,15 +228,12 @@
                 <button type="submit" class="btn-primary submit-checkout-btn">Confirmar Datos y Pagar</button>
             </form>
             
-            <!-- MercadoPago Button Container -->
             <div id="wallet_container"></div>
         </div>
 
-        <!-- RIGHT: Order Summary -->
         <div class="order-summary-panel">
             <h2>Resumen del Pedido</h2>
             <div class="summary-items" id="checkout-summary-items">
-                <!-- JS llenará esto -->
             </div>
             <div class="summary-totals">
                 <div class="summary-row">

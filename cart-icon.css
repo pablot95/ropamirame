@@ -1,6 +1,3 @@
-/* ... existente ... */
-
-/* Estilos para el icono del carrito flotante/integrado */
 .cart-widget {
     position: relative;
     display: flex;
@@ -14,7 +11,7 @@
 
 .cart-widget:hover {
     color: var(--primary-color);
-    border-bottom: none !important; /* Sobrescribir el borde del nav a */
+    border-bottom: none !important;
 }
 
 .cart-icon {
@@ -36,9 +33,46 @@
     border-radius: 50%;
     min-width: 18px;
     height: 18px;
-    padding: 0 4px; /* Un poco de padding horizontal por si es >9 */
+    padding: 0 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #fff; /* Pequeño borde para separar del icono */
+    border: 1px solid #fff;
+}
+
+@media (max-width: 768px) {
+    .cart-widget {
+        margin-left: 8px;
+        padding: 3px;
+    }
+
+    .cart-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .cart-count-badge {
+        font-size: 0.65rem;
+        min-width: 16px;
+        height: 16px;
+        top: -4px;
+        right: -6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-widget {
+        margin-left: 5px;
+    }
+
+    .cart-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .cart-count-badge {
+        font-size: 0.6rem;
+        min-width: 14px;
+        height: 14px;
+    }
 }

@@ -2,14 +2,12 @@ import { db, collection, getDocs } from "./firebase-config.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // Elementos del DOM
     const productGrid = document.getElementById('product-grid');
-    const categoriesBtns = document.querySelectorAll('.filter-btn'); // Botones de la barra lateral
-    const navLinks = document.querySelectorAll('.nav-filter'); // Enlaces del menú desplegable
+    const categoriesBtns = document.querySelectorAll('.filter-btn');
+    const navLinks = document.querySelectorAll('.nav-filter');
 
     let allProducts = [];
 
-    // --- Cargar Productos desde Firebase ---
     async function loadProducts() {
         productGrid.innerHTML = '<div class="loader">Cargando colección...</div>';
         
@@ -29,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- Renderizar Productos ---
     function renderProducts(productsToRender) {
         productGrid.innerHTML = '';
 
@@ -42,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            // Usar la primera imagen o un placeholder
             const mainImage = (product.images && product.images.length > 0) 
                               ? product.images[0] 
                               : 'images/placeholder.jpg';
@@ -68,18 +64,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
 
-            // Hacer click en la imagen para ir al detalle
             card.querySelector('.card-image-wrapper').addEventListener('click', () => {
                 window.location.href = `product.html?id=${product.id}`;
             });
 
-            // Título también clickeable
             card.querySelector('.product-title').addEventListener('click', () => {
                 window.location.href = `product.html?id=${product.id}`;
             });
             card.querySelector('.product-title').style.cursor = 'pointer';
 
-            // Botones de cantidad
             card.querySelector('.card-qty-minus').addEventListener('click', (e) => {
                 e.stopPropagation();
                 const qtyEl = document.getElementById(`qty-${product.id}`);
@@ -99,7 +92,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            // Botón agregar al carrito
             card.querySelector('.card-add-to-cart').addEventListener('click', (e) => {
                 e.stopPropagation();
                 const qtyEl = document.getElementById(`qty-${product.id}`);
@@ -107,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 addToCartFromHome(product, qty);
                 
-                // Feedback visual
                 const btn = e.target;
                 btn.textContent = '✓ Agregado';
                 btn.style.backgroundColor = '#28a745';
@@ -127,7 +118,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     function addToCartFromHome(product, quantity) {
         let cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
         
-        // Buscar si ya existe (sin talle/color específico)
         const existingIndex = cart.findIndex(item => 
             item.id === product.id && 
             item.size === 'N/A' && 
@@ -156,9 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
-    // --- Filtrado ---
     function filterProducts(category) {
-        // Actualizar UI activa
         categoriesBtns.forEach(btn => {
             if(btn.dataset.filter === category) btn.classList.add('active');
             else btn.classList.remove('active');
@@ -172,25 +160,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Event Listeners Sidebar
     categoriesBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // e.preventDefault(); // Button doesn't need preventDefault
             const filter = btn.getAttribute('data-filter');
             filterProducts(filter);
         });
     });
 
-    // Event Listeners Nav Dropdown
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            // No prevenimos default para que haga scroll al anchor #collection si es necesario
             const filter = link.getAttribute('data-filter');
             filterProducts(filter);
         });
     });
 
-    // Iniciar
     loadProducts();
     updateCartCount();
 });

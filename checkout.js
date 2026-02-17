@@ -1,7 +1,6 @@
 import { db, collection, addDoc } from "./firebase-config.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Configuración MercadoPago ---
     const mp = new MercadoPago('APP_USR-0105d511-0e85-4b9f-b131-ae47ad7210a6', {
         locale: 'es-AR'
     });
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalEl = document.getElementById('checkout-total');
     const subtotalEl = document.getElementById('checkout-subtotal');
 
-    // Cargar carrito y renderizar resumen
     const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     totalEl.textContent = `$${formatPrice(total)}`;
@@ -24,15 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Renderizar resumen del pedido
     renderCheckoutSummary(cart);
 
-    // Toggle Billing Info
     billingCheckbox.addEventListener('change', (e) => {
         billingInfo.style.display = e.target.checked ? 'none' : 'block';
     });
 
-    // Manejar envío del formulario
     checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -46,13 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Datos del cliente:", customerData);
         console.log("Items:", cart);
 
-        // Preparar datos para el backend
         const orderData = {
             items: cart.map(item => ({
                 title: item.name,
                 unit_price: Number(item.price),
                 quantity: Number(item.quantity),
-                currency_id: "ARS"
+                currency_id: "ARS",
+                size: item.size || "Único",
+                color: item.color || "N/A"
             })),
             payer: {
                 name: customerData.firstName || "Test",
@@ -81,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (preference.id) {
-                // Guardar orden en Firebase antes de mostrar el botón
                 await saveOrderToFirebase(orderData, customerData, preference.id, total);
                 submitBtn.style.display = 'none';
                 createCheckoutButton(preference.id);
@@ -93,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Confirmar Datos y Pagar';
             
-            // Guardar orden en Firebase igualmente (sin MercadoPago)
             await saveOrderToFirebase(orderData, customerData, 'pending-mp', total);
             alert("La orden fue registrada. El pago con MercadoPago no pudo conectarse (requiere servidor PHP en Hostinger). Error: " + error.message);
         }
@@ -140,6 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function saveOrderToFirebase(orderData, customerData, preferenceId, total) {
         try {
+            const billingSameAsShipping = document.getElementById('billing-same-shipping').checked;
+            
             const orderDoc = {
                 preferenceId: preferenceId,
                 customer: {
@@ -150,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     address: customerData.address,
                     city: customerData.city,
                     zipCode: customerData.zipCode,
+                    billingAddress: billingSameAsShipping ? customerData.address : (customerData.billingAddress || customerData.address)
                 },
                 items: orderData.items,
                 total: total,
@@ -164,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Actualizar badge del carrito
     function updateCartCount() {
         const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
         const count = cart.reduce((acc, item) => acc + item.quantity, 0);

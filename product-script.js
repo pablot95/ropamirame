@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         quantity: 1
     };
 
-    // --- Cargar Datos ---
     try {
         const docRef = doc(db, "products", productId);
         const docSnap = await getDoc(docRef);
@@ -45,12 +44,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderProduct(product) {
-        // Info básica
         title.textContent = product.name;
         desc.textContent = product.description;
         price.textContent = `$${formatPrice(product.price)}`;
 
-        // Stock info
         const stockEl = document.getElementById('stock-info');
         if (stockEl && product.stock !== undefined) {
             if (product.stock > 0) {
@@ -64,7 +61,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // Imágenes
         if (product.images && product.images.length > 0) {
             mainImg.src = product.images[0];
             
@@ -84,7 +80,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             mainImg.src = 'images/placeholder.jpg';
         }
 
-        // Talles
         if (product.sizes && product.sizes.length > 0) {
             product.sizes.forEach(size => {
                 const btn = document.createElement('div');
@@ -100,7 +95,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentSelection.size = 'N/A';
         }
 
-        // Colores
         if (product.colors && product.colors.length > 0) {
             const colorMap = {
                 'celeste': '#b2ebf2', 'negro': '#000000', 'blanco': '#ffffff',
@@ -136,7 +130,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
-    // --- Cantidad con límite de stock ---
     const qtyInput = document.getElementById('qty-input');
     document.getElementById('qty-minus').addEventListener('click', () => {
         if (currentSelection.quantity > 1) {
@@ -155,7 +148,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // --- Agregar al Carrito ---
     addToCartBtn.addEventListener('click', () => {
         if (!currentSelection.size && document.getElementById('size-selector-container').style.display !== 'none') {
             alert('Por favor selecciona un talle.');
@@ -166,7 +158,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Verificar stock al agregar
         const maxStock = productData?.stock || 999;
         let cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
         const existingItem = cart.find(item => 
@@ -210,7 +201,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('mirame_cart', JSON.stringify(cart));
         updateCartCount();
         
-        // Feedback visual
         addToCartBtn.textContent = '✓ Agregado!';
         addToCartBtn.style.backgroundColor = '#28a745';
         setTimeout(() => {
@@ -219,7 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1500);
     }
 
-    // --- Productos Similares ---
     async function loadSimilarProducts(currentProduct) {
         try {
             const querySnapshot = await getDocs(collection(db, "products"));
@@ -231,15 +220,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            // Preferir misma categoría, luego aleatorios
             let sameCategory = allProducts.filter(p => p.category === currentProduct.category);
             let others = allProducts.filter(p => p.category !== currentProduct.category);
             
-            // Mezclar aleatoriamente
             sameCategory.sort(() => Math.random() - 0.5);
             others.sort(() => Math.random() - 0.5);
             
-            // Tomar 4 productos: primero de la misma categoría, luego del resto
             let similar = [...sameCategory, ...others].slice(0, 4);
             
             renderSimilarProducts(similar);
