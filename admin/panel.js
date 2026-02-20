@@ -1,4 +1,4 @@
-import { db, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, getDoc } from "../firebase-config.js";
+import { db, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, getDoc, setDoc } from "../firebase-config.js";
 
 const sizesConfig = {
     letters: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSizes();
     renderColors();
     loadProducts();
+    loadShippingConfig();
+    setupShippingConfigListeners();
     
     if (sessionStorage.getItem('mirame_admin_auth') === 'true') {
         console.log('👤 Usuario ya autenticado, cargando órdenes...');
@@ -500,6 +502,14 @@ function renderOrders() {
             </div>
             
             <div class="order-total">
+                ${order.shippingCost !== undefined ? `
+                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.3rem;">
+                        Subtotal: $${formatPrice(order.subtotal || order.total)}
+                    </div>
+                    <div style="font-size: 0.9rem; color: ${order.isFreeShipping ? '#28a745' : '#666'}; margin-bottom: 0.3rem;">
+                        Envío: ${order.isFreeShipping ? '¡GRATIS!' : '$' + formatPrice(order.shippingCost)}
+                    </div>
+                ` : ''}
                 <strong>Total: $${formatPrice(order.total)}</strong>
             </div>
             
@@ -587,4 +597,83 @@ function formatDate(dateString) {
 
 function formatPrice(price) {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// ==================== CONFIGURACIÓN DE ENVÍOS ====================
+
+async function loadShippingConfig() {
+    try {
+        const docSnap = await getDoc(doc(db, "config", "shipping"));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const priceInput = document.getElementById('shipping-price');
+            const thresholdInput = document.getElementById('free-shipping-threshold');
+            
+            if (priceInput) priceInput.value = data.shippingPrice || 9000;
+            if (thresholdInput) thresholdInput.value = data.freeShippingThreshold || 120000;
+            
+            updateShippingPreview();
+            console.log('✅ Configuración de envío cargada:', data);
+        } else {
+            console.log('ℹ️ No hay config de envío, usando defaults');
+            await saveShippingConfigToFirebase(9000, 120000);
+        }
+    } catch (error) {
+        console.error('❌ Error al cargar config de envío:', error);
+    }
+}
+
+function setupShippingConfigListeners() {
+    const priceInput = document.getElementById('shipping-price');
+    const thresholdInput = document.getElementById('free-shipping-threshold');
+    const saveBtn = document.getElementById('save-shipping-config');
+
+    if (priceInput) priceInput.addEventListener('input', updateShippingPreview);
+    if (thresholdInput) thresholdInput.addEventListener('input', updateShippingPreview);
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            const price = parseInt(priceInput.value) || 9000;
+            const threshold = parseInt(thresholdInput.value) || 120000;
+            
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Guardando...';
+            
+            try {
+                await saveShippingConfigToFirebase(price, threshold);
+                const status = document.getElementById('shipping-save-status');
+                status.textContent = '✅ Guardado correctamente';
+                status.style.color = '#28a745';
+                setTimeout(() => { status.textContent = ''; }, 3000);
+            } catch (error) {
+                const status = document.getElementById('shipping-save-status');
+                status.textContent = '❌ Error al guardar';
+                status.style.color = '#dc3545';
+                console.error(error);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Guardar Configuración de Envío';
+            }
+        });
+    }
+}
+
+function updateShippingPreview() {
+    const price = parseInt(document.getElementById('shipping-price')?.value) || 0;
+    const threshold = parseInt(document.getElementById('free-shipping-threshold')?.value) || 0;
+    
+    const previewPrice = document.getElementById('preview-shipping-price');
+    const previewThreshold = document.getElementById('preview-free-threshold');
+    
+    if (previewPrice) previewPrice.textContent = formatPrice(price);
+    if (previewThreshold) previewThreshold.textContent = formatPrice(threshold);
+}
+
+async function saveShippingConfigToFirebase(shippingPrice, freeShippingThreshold) {
+    await setDoc(doc(db, "config", "shipping"), {
+        shippingPrice: shippingPrice,
+        freeShippingThreshold: freeShippingThreshold,
+        updatedAt: new Date().toISOString()
+    });
+    console.log('✅ Config de envío guardada en Firebase');
 }

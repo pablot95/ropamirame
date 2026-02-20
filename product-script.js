@@ -9,6 +9,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Cargar config de envío
+    try {
+        const shippingDoc = await getDoc(doc(db, "config", "shipping"));
+        if (shippingDoc.exists()) {
+            const data = shippingDoc.data();
+            const priceEl = document.getElementById('product-shipping-price');
+            const thresholdEl = document.getElementById('product-free-threshold');
+            if (priceEl) priceEl.textContent = formatPrice(data.shippingPrice || 9000);
+            if (thresholdEl) thresholdEl.textContent = formatPrice(data.freeShippingThreshold || 120000);
+        }
+    } catch (e) {
+        console.error("Error cargando config envío:", e);
+    }
+
     const mainImg = document.getElementById('main-img');
     const thumbnailsContainer = document.getElementById('thumbnails');
     const title = document.getElementById('p-title');

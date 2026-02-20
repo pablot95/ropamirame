@@ -118,8 +118,36 @@
             </div>
         </section>
 
+        <section class="admin-section shipping-config-section">
+            <h2>⚙️ Configuración de Envíos</h2>
+            <div class="shipping-config-form">
+                <div class="shipping-config-grid">
+                    <div class="form-group">
+                        <label for="shipping-price">💰 Precio de Envío ($):</label>
+                        <input type="number" id="shipping-price" min="0" value="9000" placeholder="Ej: 9000">
+                        <small class="config-hint">Costo del envío estándar a todo el país</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="free-shipping-threshold">🎁 Envío Gratis desde ($):</label>
+                        <input type="number" id="free-shipping-threshold" min="0" value="120000" placeholder="Ej: 120000">
+                        <small class="config-hint">Monto mínimo de compra para envío gratuito</small>
+                    </div>
+                </div>
+                <div class="shipping-preview">
+                    <p>📦 Vista previa: Envío <strong>$<span id="preview-shipping-price">9.000</span></strong> a toda Argentina · Gratis en compras mayores a <strong>$<span id="preview-free-threshold">120.000</span></strong></p>
+                </div>
+                <button type="button" id="save-shipping-config" class="save-config-btn">Guardar Configuración de Envío</button>
+                <span id="shipping-save-status" class="save-status"></span>
+            </div>
+        </section>
+
         <section class="admin-section">
             <h2>Órdenes de Compra</h2>
+            <div class="orders-filters" style="margin-bottom: 1rem;">
+                <button class="filter-btn active" id="filter-all">Todas</button>
+                <button class="filter-btn" id="filter-pending">Pendientes</button>
+                <button class="filter-btn" id="filter-approved">Aprobadas</button>
+            </div>
             <div id="orders-list" class="orders-container">
             </div>
         </section>

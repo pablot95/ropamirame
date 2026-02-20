@@ -1,6 +1,22 @@
-import { db, collection, getDocs } from "./firebase-config.js";
+import { db, collection, getDocs, doc, getDoc } from "./firebase-config.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
+    
+    // Cargar config de envío para el banner
+    try {
+        const shippingDoc = await getDoc(doc(db, "config", "shipping"));
+        if (shippingDoc.exists()) {
+            const data = shippingDoc.data();
+            const bannerThreshold = document.getElementById('banner-free-threshold');
+            if (bannerThreshold) bannerThreshold.textContent = formatPriceBanner(data.freeShippingThreshold || 120000);
+        }
+    } catch (e) {
+        console.error("Error cargando config envío:", e);
+    }
+
+    function formatPriceBanner(price) {
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
     
     const productGrid = document.getElementById('product-grid');
     const categoriesBtns = document.querySelectorAll('.filter-btn');

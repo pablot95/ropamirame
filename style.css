@@ -136,6 +136,67 @@ nav a:hover {
     margin-top: -70px;
 }
 
+/* ==================== SHIPPING BANNER ==================== */
+
+.shipping-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 0.7rem 1rem;
+    text-align: center;
+    font-size: 0.88rem;
+    z-index: 999;
+    position: relative;
+    overflow: hidden;
+}
+
+.shipping-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
+    animation: shimmerBanner 4s ease-in-out infinite;
+}
+
+@keyframes shimmerBanner {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(50%); }
+}
+
+.shipping-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    position: relative;
+    z-index: 1;
+}
+
+.shipping-banner-icon {
+    font-size: 1.1rem;
+}
+
+.shipping-banner-text {
+    font-family: var(--font-body);
+    letter-spacing: 0.3px;
+}
+
+.shipping-banner-text strong {
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .shipping-banner {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.8rem;
+    }
+    .shipping-banner-icon {
+        font-size: 0.95rem;
+    }
+}
+
 #hero::before {
     content: "";
     position: absolute;
@@ -412,12 +473,16 @@ nav a:hover {
 }
 
 footer {
-    background-color: var(--secondary-bg);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     text-align: center;
-    padding: 2rem;
-    margin-top: 4rem;
-    color: var(--light-text);
+    padding: 2.5rem 2rem;
+    margin-top: 0;
+    color: rgba(255,255,255,0.7);
     font-size: 0.9rem;
+}
+
+footer p {
+    color: rgba(255,255,255,0.7);
 }
 
 .modal {
@@ -514,7 +579,7 @@ footer {
 }
 
 .values-section {
-    background-color: #fff;
+    background: linear-gradient(180deg, #fff 0%, var(--secondary-bg) 100%);
     padding: 5rem 0;
     text-align: center;
 }
@@ -523,6 +588,19 @@ footer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 3rem;
+}
+
+.value-item {
+    padding: 2rem;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
 
 .value-item .icon-box {
@@ -611,7 +689,7 @@ footer {
 }
 
 .newsletter-section {
-    background-color: var(--secondary-bg);
+    background: linear-gradient(135deg, var(--secondary-bg) 0%, #f0ebe0 100%);
     padding: 5rem 2rem;
     text-align: center;
 }

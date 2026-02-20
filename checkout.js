@@ -1,6 +1,6 @@
-import { db, collection, addDoc } from "./firebase-config.js";
+import { db, collection, addDoc, doc, getDoc } from "./firebase-config.js";
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const mp = new MercadoPago('APP_USR-0105d511-0e85-4b9f-b131-ae47ad7210a6', {
         locale: 'es-AR'
     });
@@ -10,11 +10,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const billingInfo = document.getElementById('billing-info');
     const totalEl = document.getElementById('checkout-total');
     const subtotalEl = document.getElementById('checkout-subtotal');
+    const shippingEl = document.getElementById('checkout-shipping');
+    const shippingInfoEl = document.getElementById('shipping-info-badge');
 
     const cart = JSON.parse(localStorage.getItem('mirame_cart')) || [];
-    const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    totalEl.textContent = `$${formatPrice(total)}`;
-    if (subtotalEl) subtotalEl.textContent = `$${formatPrice(total)}`;
+    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+    // Cargar configuración de envío desde Firebase
+    let shippingPrice = 9000;
+    let freeShippingThreshold = 120000;
+
+    try {
+        const shippingDoc = await getDoc(doc(db, "config", "shipping"));
+        if (shippingDoc.exists()) {
+            const shippingData = shippingDoc.data();
+            shippingPrice = shippingData.shippingPrice || 9000;
+            freeShippingThreshold = shippingData.freeShippingThreshold || 120000;
+        }
+    } catch (error) {
+        console.error("Error al cargar config de envío:", error);
+    }
+
+    const isFreeShipping = subtotal >= freeShippingThreshold;
+    const shippingCost = isFreeShipping ? 0 : shippingPrice;
+    const total = subtotal + shippingCost;
+
+    if (subtotalEl) subtotalEl.textContent = `$${formatPrice(subtotal)}`;
+    if (shippingEl) {
+        if (isFreeShipping) {
+            shippingEl.innerHTML = `<span style="color: #28a745; font-weight: 600;">¡GRATIS!</span>`;
+        } else {
+            shippingEl.textContent = `$${formatPrice(shippingCost)}`;
+        }
+    }
+    if (totalEl) totalEl.textContent = `$${formatPrice(total)}`;
+
+    // Mostrar badge de envío gratis o cuánto falta
+    if (shippingInfoEl) {
+        if (isFreeShipping) {
+            shippingInfoEl.innerHTML = `<span class="free-shipping-badge">🎉 ¡Tenés envío gratis!</span>`;
+        } else {
+            const remaining = freeShippingThreshold - subtotal;
+            shippingInfoEl.innerHTML = `<span class="shipping-hint">📦 Sumá $${formatPrice(remaining)} más para envío gratis</span>`;
+        }
+    }
 
     if (cart.length === 0) {
         alert("El carrito está vacío");
@@ -149,6 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     billingAddress: billingSameAsShipping ? customerData.address : (customerData.billingAddress || customerData.address)
                 },
                 items: orderData.items,
+                subtotal: subtotal,
+                shippingCost: shippingCost,
+                isFreeShipping: isFreeShipping,
                 total: total,
                 status: 'pending',
                 createdAt: new Date().toISOString(),

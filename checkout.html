@@ -144,6 +144,36 @@
             cursor: pointer;
             margin-top: 1rem;
         }
+        .free-shipping-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .shipping-hint {
+            display: inline-block;
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #e65100;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+        .shipping-note {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .shipping-note p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -242,12 +272,16 @@
                 </div>
                 <div class="summary-row">
                     <span>Envío</span>
-                    <span>A coordinar</span>
+                    <span id="checkout-shipping">Calculando...</span>
                 </div>
+                <div id="shipping-info-badge" style="margin-bottom: 0.5rem;"></div>
                 <div class="summary-row total">
                     <span>Total</span>
                     <span id="checkout-total">$0</span>
                 </div>
+            </div>
+            <div class="shipping-note">
+                <p>📦 Envíos a toda Argentina</p>
             </div>
         </div>
     </div>

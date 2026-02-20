@@ -425,3 +425,93 @@ button[type="submit"] {
 .btn-delete-order:hover {
     background: #c82333;
 }
+
+/* ==================== SHIPPING CONFIG ==================== */
+
+.shipping-config-section {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e8f4fd 100%) !important;
+    border: 2px solid #b3d9f2;
+}
+
+.shipping-config-section h2 {
+    color: #1a73e8;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.shipping-config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .shipping-config-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.shipping-config-form .form-group {
+    margin-bottom: 0;
+}
+
+.shipping-config-form input[type="number"] {
+    font-size: 1.1rem;
+    padding: 0.9rem;
+    border: 2px solid #b3d9f2;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.shipping-config-form input[type="number"]:focus {
+    border-color: #1a73e8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+.config-hint {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.shipping-preview {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #1a73e8;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.save-config-btn {
+    background: #1a73e8 !important;
+    color: white !important;
+    padding: 0.8rem 2rem !important;
+    border: none;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    width: auto !important;
+}
+
+.save-config-btn:hover {
+    background: #1557b0 !important;
+    transform: translateY(-1px);
+}
+
+.save-config-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.save-status {
+    margin-left: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
